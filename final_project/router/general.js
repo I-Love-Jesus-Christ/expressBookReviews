@@ -39,6 +39,7 @@ public_users.post("/register", function (req, res) {
 });
 
 // Get the book list available in the shop
+// Task 10
 public_users.get('/',function (req, res) {
   const the_promise = new Promise(function (resolve, reject) {
     if (Object.keys(books).length > 0) {
@@ -59,19 +60,30 @@ public_users.get('/',function (req, res) {
 });
 
 
-
-// Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  const ISBN = req.params.isbn;
+// Task 11
+async function get_book_by_isbn(ISBN) {
   const book = books[ISBN];
   if (book != undefined) {
-    return res.status(200).json(book);
+    return book;
   } else {
-    return res.status(404).json({message: `No book with ISBN ${ISBN} found.`});
+    throw {message: `No book with ISBN ${ISBN} found.`};
+  } 
+}
+
+// Get book details based on ISBN
+// Task 11
+public_users.get('/isbn/:isbn', async function (req, res) {
+  const ISBN = req.params.isbn;
+  try {
+    const book = await get_book_by_isbn(ISBN);
+    return res.status(200).json(book);
+  } catch (error_message) {
+    return res.status(404).json(error_message);
   }
- });
+});
   
 // Get book details based on author
+// Task 3
 public_users.get('/author/:author',function (req, res) {
   let target_books = [];
   const author = req.params.author;
@@ -86,7 +98,6 @@ public_users.get('/author/:author',function (req, res) {
   } else {
     return res.status(404).json({message: `No book of author ${author} found.`})
   }
-  
 });
 
 // Get all books based on title
