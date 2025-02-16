@@ -59,26 +59,27 @@ public_users.get('/', async function (req, res) {
 });
 
 
-// Task 11
-async function get_book_by_isbn(ISBN) {
-  const book = books[ISBN];
-  if (book != undefined) {
-    return book;
-  } else {
-    throw `No book with ISBN ${ISBN} found.`;
-  } 
-}
-
 // Get book details based on ISBN
 // Task 11
 public_users.get('/isbn/:isbn', async function (req, res) {
   const ISBN = req.params.isbn;
-  try {
-    const book = await get_book_by_isbn(ISBN);
-    return res.status(200).json(book);
-  } catch (error_message) {
-    return res.status(404).json({message: error_message});
-  }
+  const the_promise = new Promise(function (resolve, reject) {
+    const book = books[ISBN];
+    if (book != undefined) {
+      resolve(book);
+    } else {
+      reject(`No book with ISBN ${ISBN} found.`);
+    } 
+  });
+
+  the_promise.then(
+    function (book) {
+      return res.status(200).json(book);
+    },
+    function (error_message) {
+      return res.status(404).json({message: error_message});
+    }
+  );
 });
   
 
