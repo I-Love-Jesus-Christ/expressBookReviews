@@ -40,9 +40,25 @@ public_users.post("/register", function (req, res) {
 
 // Get the book list available in the shop
 public_users.get('/',function (req, res) {
+  const the_promise = new Promise(function (resolve, reject) {
+    if (Object.keys(books).length > 0) {
+      resolve(books);
+    } else {
+      reject("There are no books available in the shop.");
+    }
+  });
 
-  return res.status(200).json(books);
+  the_promise.then(
+    function(the_books) {
+      return res.status(200).json(the_books);
+    }, 
+    function(error_message) {
+      return res.status(404).json(error_message);
+    }
+  );
 });
+
+
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
