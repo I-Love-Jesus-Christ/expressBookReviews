@@ -103,9 +103,6 @@ async function get_books_by_author(author) {
 // Task 12
 public_users.get('/author/:author',async function (req, res) {
   const author = req.params.author;
-  if (author.length == 0) {
-    return res.status(404).json({message: "No value for author parameter given"});
-  }
   try {
     const target_books = await get_books_by_author(author);
     return res.status(200).json(target_books);
@@ -114,12 +111,9 @@ public_users.get('/author/:author',async function (req, res) {
   }
 });
 
-
-
-// Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  let target_books = [];
-  const title = req.params.title;
+// Task 13
+async function get_books_by_title(title) {
+  const target_books = [];
   for (key in books) {
     let book = books[key];
     if (title == book["title"]) {
@@ -127,9 +121,21 @@ public_users.get('/title/:title',function (req, res) {
     }
   }
   if (target_books.length > 0) {
-    return res.status(200).json(target_books);
+    return target_books;
   } else {
-    return res.status(404).json({message: `No book titled ${title} found.`})
+    throw `No book titled ${title} found.`;
+  }
+}
+
+// Get all books based on title
+// Task 13
+public_users.get('/title/:title',async function (req, res) {
+  const title = req.params.title;
+  try {
+    const target_books = await get_books_by_title(title);
+    return res.status(200).json(target_books);
+  } catch (error_message) {
+    return res.status(404).json({message: error_message});
   }
 });
 
