@@ -80,7 +80,7 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   if (review == undefined) {
     return res.status(404).json({message: `Review from ${username} for the book with the ISBN ${ISBN} not given`});
   }
-  books[ISBN].reviews[username] = review;
+  book.reviews[username] = review;
   return res.status(200).json({message: `Review from user ${username} added for the book with ISBN ${ISBN}`});
 });
 
@@ -95,15 +95,14 @@ regd_users.delete("/auth/review/:isbn", function (req, res) {
   if (book == undefined) {
     return res.status(404).json({message: `No book with ISBN ${ISBN} found`});
   } 
-  console.log(book);
+
   const review = book.reviews[username];
-  console.log(review);
   if (review == undefined) {
     return res.status(404).json({message: `Review from ${username} for the book with the ISBN ${ISBN} not found`});
   }
 
   delete books[ISBN].reviews[username];
-
+  
   return res.status(200).json({message: `Review from ${username} for the book with the ISBN ${ISBN} has been deleted.`})
 });
 
