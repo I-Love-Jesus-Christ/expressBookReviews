@@ -72,43 +72,38 @@ public_users.get('/isbn/:isbn', async function (req, res) {
     } 
   });
 
-  the_promise.then(
-    function (book) {
+  the_promise.then(function (book) {
       return res.status(200).json(book);
-    },
-    function (error_message) {
-      return res.status(404).json({message: error_message});
-    }
-  );
+  },
+  function (error_message) {
+    return res.status(404).json({message: error_message});
+  });
 });
-  
-
-// Task 12
-async function get_books_by_author(author) {
-  const target_books = [];
-  for (key in books) {
-    let book = books[key];
-    if (author == book["author"]) {
-      target_books.push(book);
-    }
-  }
-  if (target_books.length > 0) {
-    return target_books;
-  } else {
-    throw `No book of author ${author} found.`;
-  }
-}
 
 // Get book details based on author
 // Task 12
 public_users.get('/author/:author',async function (req, res) {
   const author = req.params.author;
-  try {
-    const target_books = await get_books_by_author(author);
+  const the_promise = new Promise(function (resolve, reject) {
+    const target_books = [];
+    for (key in books) {
+      let book = books[key];
+      if (author == book["author"]) {
+        target_books.push(book);
+      }
+    }
+    if (target_books.length > 0) {
+      resolve(target_books);
+    } else {
+      reject(`No book of author ${author} found.`);
+    }
+  });
+  the_promise.then(function (target_books) {
     return res.status(200).json(target_books);
-  } catch (error_message) {
+  },
+  function (error_message) {
     return res.status(404).json({message: error_message});
-  }
+  });
 });
 
 // Task 13
@@ -131,6 +126,7 @@ async function get_books_by_title(title) {
 // Task 13
 public_users.get('/title/:title',async function (req, res) {
   const title = req.params.title;
+
   try {
     const target_books = await get_books_by_title(title);
     return res.status(200).json(target_books);
