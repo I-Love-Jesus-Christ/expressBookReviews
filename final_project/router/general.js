@@ -106,33 +106,32 @@ public_users.get('/author/:author',async function (req, res) {
   });
 });
 
-// Task 13
-async function get_books_by_title(title) {
-  const target_books = [];
-  for (key in books) {
-    let book = books[key];
-    if (title == book["title"]) {
-      target_books.push(book);
-    }
-  }
-  if (target_books.length > 0) {
-    return target_books;
-  } else {
-    throw `No book titled ${title} found.`;
-  }
-}
 
 // Get all books based on title
 // Task 13
 public_users.get('/title/:title',async function (req, res) {
   const title = req.params.title;
+  const the_promise = new Promise(function (resolve, reject) {
+    const target_books = [];
+    for (key in books) {
+      let book = books[key];
+      if (title == book["title"]) {
+        target_books.push(book);
+      }
+    }
+    if (target_books.length > 0) {
+      resolve(target_books);
+    } else {
+      reject(`No book titled ${title} found.`);
+    }
+  });
 
-  try {
-    const target_books = await get_books_by_title(title);
+  the_promise.then(function (target_books) {
     return res.status(200).json(target_books);
-  } catch (error_message) {
+  }, 
+  function (error_message) {
     return res.status(404).json({message: error_message});
-  }
+  });
 });
 
 //  Get book review
