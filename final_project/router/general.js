@@ -54,7 +54,7 @@ public_users.get('/',function (req, res) {
       return res.status(200).json(the_books);
     }, 
     function(error_message) {
-      return res.status(404).json(error_message);
+      return res.status(404).json({message: error_message});
     }
   );
 });
@@ -66,7 +66,7 @@ async function get_book_by_isbn(ISBN) {
   if (book != undefined) {
     return book;
   } else {
-    throw {message: `No book with ISBN ${ISBN} found.`};
+    throw `No book with ISBN ${ISBN} found.`;
   } 
 }
 
@@ -78,15 +78,14 @@ public_users.get('/isbn/:isbn', async function (req, res) {
     const book = await get_book_by_isbn(ISBN);
     return res.status(200).json(book);
   } catch (error_message) {
-    return res.status(404).json(error_message);
+    return res.status(404).json({message: error_message});
   }
 });
   
-// Get book details based on author
-// Task 3
-public_users.get('/author/:author',function (req, res) {
-  let target_books = [];
-  const author = req.params.author;
+
+// Task 12
+async function get_books_by_author(author) {
+  const target_books = [];
   for (key in books) {
     let book = books[key];
     if (author == book["author"]) {
@@ -94,11 +93,28 @@ public_users.get('/author/:author',function (req, res) {
     }
   }
   if (target_books.length > 0) {
-    return res.status(200).json(target_books);
+    return target_books;
   } else {
-    return res.status(404).json({message: `No book of author ${author} found.`})
+    throw `No book of author ${author} found.`;
+  }
+}
+
+// Get book details based on author
+// Task 12
+public_users.get('/author/:author',async function (req, res) {
+  const author = req.params.author;
+  if (author.length == 0) {
+    return res.status(404).json({message: "No value for author parameter given"});
+  }
+  try {
+    const target_books = await get_books_by_author(author);
+    return res.status(200).json(target_books);
+  } catch (error_message) {
+    return res.status(404).json({message: error_message});
   }
 });
+
+
 
 // Get all books based on title
 public_users.get('/title/:title',function (req, res) {
