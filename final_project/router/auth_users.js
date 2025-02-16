@@ -53,7 +53,7 @@ regd_users.post("/login", (req,res) => {
         // Generate JWT access token
         let accessToken = jwt.sign({
             data: password
-        }, 'access', { expiresIn: 60 * 60 });
+        }, 'access', { expiresIn: "1h" });
 
         // Store access token and username in session
         req.session.authorization = {
@@ -80,8 +80,31 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   if (review == undefined) {
     return res.status(404).json({message: `Review from ${username} for the book with the ISBN ${ISBN} not given`});
   }
-  book.reviews[username] = review;
+  books[ISBN].reviews[username] = review;
   return res.status(200).json({message: `Review from user ${username} added for the book with ISBN ${ISBN}`});
+});
+
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", function (req, res) {
+  const username = req.session.authorization.username;
+  if (username == undefined) {
+    return res.status(404).json({message: `Unauthorized access`});
+  }
+  const ISBN = req.params.isbn;
+  const book = books[ISBN];
+  if (book == undefined) {
+    return res.status(404).json({message: `No book with ISBN ${ISBN} found`});
+  } 
+  console.log(book);
+  const review = book.reviews[username];
+  console.log(review);
+  if (review == undefined) {
+    return res.status(404).json({message: `Review from ${username} for the book with the ISBN ${ISBN} not found`});
+  }
+
+  delete books[ISBN].reviews[username];
+
+  return res.status(200).json({message: `Review from ${username} for the book with the ISBN ${ISBN} has been deleted.`})
 });
 
 module.exports.authenticated = regd_users;
